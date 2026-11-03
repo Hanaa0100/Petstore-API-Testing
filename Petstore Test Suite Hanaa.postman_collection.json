@@ -1,0 +1,1862 @@
+{
+  "info": {
+    "_postman_id": "f565c775-ef5b-457b-801c-1b91f0c50304",
+    "name": "Petstore Test Suite Hanaa",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58913998",
+    "_collection_link": "https://go.postman.co/collection/58913998-f565c775-ef5b-457b-801c-1b91f0c50304?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Smoke",
+      "item": [
+        {
+          "name": "SM-01 - Get Store Inventory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\n// 1. Verify status code\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Verify response time\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// 3. Verify JSON response format\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\n// 4. Verify Content-Type\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n// 5. Verify inventory structure\r\npm.test(\"Inventory values are numeric\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.be.an(\"object\");\r\n\r\n    Object.values(data).forEach(function (value) {\r\n        pm.expect(value).to.be.a(\"number\");\r\n    });\r\n});\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/store/inventory",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "inventory"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SM-02 - Get Pets By Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const pets = pm.response.json();\r\n\r\n// =====================================\r\n// REQUIRED ASSERTIONS\r\n// =====================================\r\n\r\n// 1. Verify status code\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Verify response time\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// 3. Verify JSON response\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\n// 4. Verify Content-Type\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n\r\n// =====================================\r\n// ADDITIONAL ASSERTIONS\r\n// =====================================\r\n\r\n// 5. Verify response is an array\r\npm.test(\"Response body is an array\", function () {\r\n    pm.expect(pets).to.be.an(\"array\");\r\n});\r\n\r\n// 6. Verify response is not empty\r\npm.test(\"Response contains at least one pet\", function () {\r\n    pm.expect(pets).to.have.length.above(0);\r\n});\r\n\r\n// Continue data validation only if response is an array\r\nif (Array.isArray(pets)) {\r\n\r\n    // 7. Verify every pet has a valid ID\r\n    pm.test(\"Every pet has a valid integer ID\", function () {\r\n        pets.forEach(function (pet) {\r\n            pm.expect(pet.id).to.be.a(\"number\");\r\n            pm.expect(Number.isInteger(pet.id)).to.be.true;\r\n        });\r\n    });\r\n\r\n    // 8. Verify every pet has a valid name\r\n    pm.test(\"Every pet has a non-empty name\", function () {\r\n        pets.forEach(function (pet) {\r\n            pm.expect(pet.name).to.be.a(\"string\");\r\n            pm.expect(pet.name.trim()).to.not.equal(\"\");\r\n        });\r\n    });\r\n\r\n    // 9. Verify all pets match the requested status\r\n    pm.test(\"All pets have available status\", function () {\r\n        pets.forEach(function (pet) {\r\n            pm.expect(pet.status).to.equal(\"available\");\r\n        });\r\n    });\r\n\r\n    // 10. Verify pet IDs are unique\r\n    pm.test(\"No duplicate pet IDs\", function () {\r\n        const ids = pets.map(pet => pet.id);\r\n        const uniqueIds = new Set(ids);\r\n\r\n        pm.expect(uniqueIds.size).to.equal(ids.length);\r\n    });\r\n\r\n    // 11. Verify photoUrls structure\r\n    pm.test(\"Every pet has a valid photoUrls array\", function () {\r\n        pets.forEach(function (pet) {\r\n            pm.expect(pet.photoUrls).to.be.an(\"array\");\r\n\r\n            pet.photoUrls.forEach(function (url) {\r\n                pm.expect(url).to.be.a(\"string\");\r\n            });\r\n        });\r\n    });\r\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/findByStatus?status=available",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "findByStatus"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "available"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SM-03 - User Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// =====================================\r\n// REQUIRED ASSERTIONS\r\n// =====================================\r\n\r\n// 1. Verify status code\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Verify response time\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// 3. Verify JSON response\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\n// 4. Verify Content-Type\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n// =====================================\r\n// ADDITIONAL ASSERTIONS\r\n// =====================================\r\n\r\n// 5. Verify response body is a non-empty text\r\npm.test(\"Login response contains a non-empty message\", function () {\r\n    const responseBody = pm.response.text();\r\n\r\n    pm.expect(responseBody).to.be.a(\"string\");\r\n    pm.expect(responseBody.trim()).to.not.equal(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/login?username=saew&password=lmkjno",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ],
+              "query": [
+                {
+                  "key": "username",
+                  "value": "saew"
+                },
+                {
+                  "key": "password",
+                  "value": "lmkjno"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pet",
+      "item": [
+        {
+          "name": "PET-01 - Create Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const pet = pm.response.json();\r\n\r\n// REQUIRED ASSERTIONS\r\n\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n// ADDITIONAL ASSERTIONS\r\n\r\npm.test(\"Pet ID matches the requested ID\", function () {\r\n    pm.expect(pet.id).to.equal(2026110201);\r\n});\r\n\r\npm.test(\"Pet name matches the requested name\", function () {\r\n    pm.expect(pet.name).to.equal(\"Rex Hanaa\");\r\n});\r\n\r\npm.test(\"Pet photoUrls is a valid array\", function () {\r\n    pm.expect(pet.photoUrls).to.be.an(\"array\");\r\n    pm.expect(pet.photoUrls).to.include(\"https://example.com/store-test-pet.jpg\");\r\n});\r\n\r\npm.test(\"Pet status is available\", function () {\r\n    pm.expect(pet.status).to.equal(\"available\");\r\n});\r\n\r\n// SAVE PET ID FOR THE NEXT REQUEST\r\n\r\nif (pm.response.code === 200 && pet.id !== undefined) {\r\n    pm.environment.set(\"petId\", pet.id);\r\n}\r\n\r\n// JSON SCHEMA ASSERTION\r\n\r\nconst petSchema = {\r\n    type: \"object\",\r\n    required: [\"id\", \"name\", \"photoUrls\"],\r\n    properties: {\r\n        id: { type: \"integer\" },\r\n        name: { type: \"string\" },\r\n        photoUrls: {\r\n            type: \"array\",\r\n            items: { type: \"string\" }\r\n        },\r\n        status: {\r\n            type: \"string\",\r\n            enum: [\"available\", \"pending\", \"sold\"]\r\n        }\r\n    }\r\n};\r\n\r\npm.test(\"Response matches Pet JSON Schema\", function () {\r\n    pm.response.to.have.jsonSchema(petSchema);\r\n});\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 2026110201,\r\n  \"name\": \"Rex Hanaa\",\r\n  \"photoUrls\": [\r\n    \"https://example.com/store-test-pet.jpg\"\r\n  ],\r\n  \"status\": \"available\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PET-02 - Get Pet By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const pet = pm.response.json();\r\n\r\n// REQUIRED ASSERTIONS\r\n\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n// ADDITIONAL ASSERTIONS\r\n\r\npm.test(\"Retrieved Pet ID matches petId\", function () {\r\n    pm.expect(pet.id).to.equal(Number(pm.environment.get(\"petId\")));\r\n});\r\n\r\npm.test(\"Retrieved Pet name is correct\", function () {\r\n    pm.expect(pet.name).to.equal(\"Rex Hanaa\");\r\n});\r\n\r\npm.test(\"Retrieved Pet photoUrls is correct\", function () {\r\n    pm.expect(pet.photoUrls).to.include(\"https://example.com/rex.jpg\");\r\n});\r\n\r\npm.test(\"Retrieved Pet status is available\", function () {\r\n    pm.expect(pet.status).to.equal(\"available\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{petId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{petId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PET-03 - Update Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const pet = pm.response.json();\r\n\r\n// REQUIRED ASSERTIONS\r\n\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n// ADDITIONAL ASSERTIONS\r\n\r\npm.test(\"Pet ID remains unchanged\", function () {\r\n    pm.expect(pet.id).to.equal(Number(pm.environment.get(\"petId\")));\r\n});\r\n\r\npm.test(\"Pet name is updated correctly\", function () {\r\n    pm.expect(pet.name).to.equal(\"Rex Hanaa Updated\");\r\n});\r\n\r\npm.test(\"Pet status is updated to pending\", function () {\r\n    pm.expect(pet.status).to.equal(\"pending\");\r\n});\r\n\r\npm.test(\"Pet photoUrls remains unchanged\", function () {\r\n    pm.expect(pet.photoUrls).to.include(\"https://example.com/rex.jpg\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": 2026110201,\r\n    \"name\": \"Rex Hanaa Updated\",\r\n    \"photoUrls\": [\r\n        \"https://example.com/rex.jpg\"\r\n    ],\r\n    \"status\": \"pending\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PET-04 - Verify Updated Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const pet = pm.response.json();\r\n\r\n// REQUIRED ASSERTIONS\r\n\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n// ADDITIONAL ASSERTIONS\r\n\r\npm.test(\"Retrieved Pet ID matches petId\", function () {\r\n    pm.expect(pet.id).to.equal(Number(pm.environment.get(\"petId\")));\r\n});\r\n\r\npm.test(\"Retrieved Pet name is correct\", function () {\r\n    pm.expect(pet.name).to.equal(\"Rex Hanaa Updated\");\r\n});\r\n\r\npm.test(\"Retrieved Pet photoUrls is correct\", function () {\r\n    pm.expect(pet.photoUrls)\r\n        .to.include(\"https://example.com/rex.jpg\");\r\n});\r\n\r\npm.test(\"Retrieved Pet status is pending\", function () {\r\n    pm.expect(pet.status).to.equal(\"pending\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{petId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{petId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PET-05 - Find Pet By Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const pets = pm.response.json();\r\nconst petId = Number(pm.environment.get(\"petId\"));\r\n\r\n// REQUIRED ASSERTIONS\r\n\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n// ADDITIONAL ASSERTIONS\r\n\r\npm.test(\"Response body is an array\", function () {\r\n    pm.expect(pets).to.be.an(\"array\");\r\n});\r\n\r\npm.test(\"Search results contain the updated pet\", function () {\r\n    const foundPet = pets.find(pet => pet.id === petId);\r\n    pm.expect(foundPet).to.exist;\r\n});\r\n\r\npm.test(\"Found pet has pending status\", function () {\r\n    const foundPet = pets.find(pet => pet.id === petId);\r\n    pm.expect(foundPet).to.exist;\r\n    pm.expect(foundPet.status).to.equal(\"pending\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/findByStatus?status=pending",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "findByStatus"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PET-06 - Delete Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\npm.test(\"Response confirms Pet deletion\", function () {\r\n  pm.expect(pm.response.text().toLowerCase()).to.include(\"pet deleted\");\r\n});\r\n\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{petId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{petId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PET-07 - Verify Deleted Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API returns 404 Not Found\r\n// because the pet was successfully deleted.\r\npm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\n// Verify that the response time is below the configured limit.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API returns a non-empty response body.\r\npm.test(\"Response body is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.equal(\"\");\r\n});\r\n\r\n// Verify that the response contains the expected not-found message.\r\npm.test(\"Response contains the expected not-found message\", function () {\r\n    pm.expect(pm.response.text().trim()).to.equal(\"Pet not found\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{petId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{petId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Store",
+      "item": [
+        {
+          "name": "STORE-01 – Create Store Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const order = pm.response.json();\r\n\r\n// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Order ID matches the requested ID\", function () {\r\n    pm.expect(order.id).to.eql(2026110206);\r\n});\r\n\r\npm.test(\"Pet ID matches the created Pet\", function () {\r\n    pm.expect(order.petId).to.eql(2026110205);\r\n});\r\n\r\npm.test(\"Order quantity is correct\", function () {\r\n    pm.expect(order.quantity).to.eql(1);\r\n});\r\n\r\npm.test(\"Order status is placed\", function () {\r\n    pm.expect(order.status).to.eql(\"placed\");\r\n});\r\n\r\npm.test(\"Order is marked as complete\", function () {\r\n    pm.expect(order.complete).to.eql(true);\r\n});\r\n\r\n// SAVE ORDER ID FOR THE NEXT REQUEST\r\nif (pm.response.code === 200 && order.id !== undefined) {\r\n    pm.environment.set(\"orderId\", order.id);\r\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 2026110206,\r\n  \"petId\": 2026110205,\r\n  \"quantity\": 1,\r\n  \"shipDate\": \"2026-11-02T18:00:00.000Z\",\r\n  \"status\": \"placed\",\r\n  \"complete\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/store/order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STORE-02 – Get Store Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Content-Type is JSON\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\nconst order = pm.response.json();\r\n\r\npm.test(\"Order ID matches the saved orderId\", function () {\r\n    pm.expect(order.id).to.eql(Number(pm.environment.get(\"orderId\")));\r\n});\r\n\r\npm.test(\"Pet ID matches the created Pet\", function () {\r\n    pm.expect(order.petId).to.eql(2026110205);\r\n});\r\n\r\npm.test(\"Order quantity is correct\", function () {\r\n    pm.expect(order.quantity).to.eql(1);\r\n});\r\n\r\npm.test(\"Order status is placed\", function () {\r\n    pm.expect(order.status).to.eql(\"placed\");\r\n});\r\n\r\npm.test(\"Order is marked as complete\", function () {\r\n    pm.expect(order.complete).to.eql(true);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{orderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STORE-03 – Delete Store Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Order deletion response is received\", function () {\r\n    pm.expect(pm.response.text()).to.not.be.undefined;\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{orderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STORE-04 – Verify Deleted Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Response body is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.be.empty;\r\n});\r\n\r\npm.test(\"Response contains the expected not-found message\", function () {\r\n    pm.expect(pm.response.text().trim()).to.include(\"Order not found\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{orderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STORE-05 – Delete Test Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Pet deletion response contains success message\", function () {\r\n    pm.expect(pm.response.text().trim()).to.equal(\"Pet deleted\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/2026110205",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "2026110205"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "STORE-06 – Verify Deleted Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\npm.test(\"Response body is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.be.empty;\r\n});\r\n\r\npm.test(\"Response contains the expected not-found message\", function () {\r\n    pm.expect(pm.response.text().trim()).to.include(\"Pet not found\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{petId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{petId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "USER-01 - Create User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Generate a unique username for each run.\nconst username = \"hanaa_api_\" + Date.now();\npm.environment.set(\"username\", username);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\n// REQUIRED ASSERTIONS\n// ==========================================\n\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Response is valid JSON\", function () {\n    pm.response.to.be.json;\n});\n\npm.test(\"Response contains user ID\", function () {\n    const result = pm.response.json();\n    pm.expect(result.id).to.exist;\n});\n\npm.test(\"Response contains username\", function () {\n    const result = pm.response.json();\n    pm.expect(result.username).to.be.a(\"string\").and.not.empty;\n});\n\npm.test(\"Response contains user details\", function () {\n    const result = pm.response.json();\n\n    pm.expect(result.firstName).to.be.a(\"string\").and.not.empty;\n    pm.expect(result.lastName).to.be.a(\"string\").and.not.empty;\n    pm.expect(result.email).to.be.a(\"string\").and.not.empty;\n});\n\n\n// ==========================================\n// ADDITIONAL ASSERTIONS\n// ==========================================\n\npm.test(\"User status is valid\", function () {\n    const result = pm.response.json();\n    pm.expect(result.userStatus).to.be.a(\"number\");\n});\n\npm.test(\"Response time is below maxResponseMs\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(\n        Number(pm.environment.get(\"maxResponseMs\"))\n    );\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 2026110207,\n  \"username\": \"{{username}}\",\n  \"firstName\": \"Hanaa\",\n  \"lastName\": \"Tester\",\n  \"email\": \"hanaa.api.test@example.com\",\n  \"password\": \"TestPass123!\",\n  \"phone\": \"0501234567\",\n  \"userStatus\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USER-02 - Get User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\n// REQUIRED ASSERTIONS\n// ==========================================\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\npm.test(\"Response time is below maxResponseMs\", function () {\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\n    pm.expect(maxTime).to.be.above(0);\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\n});\npm.test(\"Response is valid JSON\", function () {\n    pm.response.to.be.json;\n});\npm.test(\"Content-Type is JSON\", function () {\n    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\n});\n\n// ==========================================\n// ADDITIONAL ASSERTIONS\n// ==========================================\nconst user = pm.response.json();\npm.test(\"Username matches the saved username\", function () {\n    pm.expect(user.username).to.eql(pm.environment.get(\"username\"));\n});\npm.test(\"First name is correct\", function () {\n    pm.expect(user.firstName).to.eql(\"Hanaa\");\n});\npm.test(\"Email is correct\", function () {\n    pm.expect(user.email).to.eql(\"hanaa.api.test@example.com\");\n});\npm.test(\"User status is active\", function () {\n    pm.expect(user.userStatus).to.eql(1);\n});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/{{username}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "{{username}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USER-03 - Update User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\n// REQUIRED ASSERTIONS\n// ==========================================\n\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Response is valid JSON\", function () {\n    pm.response.to.be.json;\n});\n\npm.test(\"Updated username matches the requested user\", function () {\n    const result = pm.response.json();\n    pm.expect(result.username).to.eql(\n        pm.environment.get(\"username\")\n    );\n});\n\npm.test(\"First name is updated successfully\", function () {\n    const result = pm.response.json();\n    pm.expect(result.firstName).to.eql(\"Hanaa Updated\");\n});\n\npm.test(\"Email is updated successfully\", function () {\n    const result = pm.response.json();\n    pm.expect(result.email).to.eql(\"hanaa.api.updated@example.com\");\n});\n\n\n// ==========================================\n// ADDITIONAL ASSERTIONS\n// ==========================================\n\npm.test(\"User ID remains unchanged\", function () {\n    const result = pm.response.json();\n    pm.expect(result.id).to.eql(2026110207);\n});\n\npm.test(\"Last name remains unchanged\", function () {\n    const result = pm.response.json();\n    pm.expect(result.lastName).to.eql(\"Tester\");\n});\n\npm.test(\"User status is valid\", function () {\n    const result = pm.response.json();\n    pm.expect(result.userStatus).to.be.a(\"number\");\n});\n\npm.test(\"Response time is below maxResponseMs\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(\n        Number(pm.environment.get(\"maxResponseMs\"))\n    );\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 2026110207,\n  \"username\": \"{{username}}\",\n  \"firstName\": \"Hanaa Updated\",\n  \"lastName\": \"Tester\",\n  \"email\": \"hanaa.api.updated@example.com\",\n  \"password\": \"TestPass123!\",\n  \"phone\": \"0501234567\",\n  \"userStatus\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/{{username}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "{{username}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USER-04 - Verify Updated User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================",
+                  "// REQUIRED ASSERTIONS",
+                  "// ==========================================",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response time is below maxResponseMs\", function () {",
+                  "    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));",
+                  "    pm.expect(maxTime).to.be.above(0);",
+                  "    pm.expect(pm.response.responseTime).to.be.below(maxTime);",
+                  "});",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "pm.test(\"Content-Type is JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "// ==========================================",
+                  "// ADDITIONAL ASSERTIONS",
+                  "// ==========================================",
+                  "const user = pm.response.json();",
+                  "pm.test(\"Updated first name is saved\", function () {",
+                  "    pm.expect(user.firstName).to.eql(\"Hanaa Updated\");",
+                  "});",
+                  "pm.test(\"Updated email is saved\", function () {",
+                  "    pm.expect(user.email).to.eql(\"hanaa.api.updated@example.com\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/{{username}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "{{username}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USER-05 - Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================",
+                  "// REQUIRED ASSERTIONS",
+                  "// ==========================================",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response time is below maxResponseMs\", function () {",
+                  "    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));",
+                  "    pm.expect(maxTime).to.be.above(0);",
+                  "    pm.expect(pm.response.responseTime).to.be.below(maxTime);",
+                  "});",
+                  "",
+                  "// ==========================================",
+                  "// ADDITIONAL ASSERTIONS",
+                  "// ==========================================",
+                  "pm.test(\"Login response is not empty\", function () {",
+                  "    pm.expect(pm.response.text().trim()).to.not.be.empty;",
+                  "});",
+                  "pm.test(\"Login response indicates a session or success\", function () {",
+                  "    pm.expect(pm.response.text().toLowerCase()).to.match(/logged|success|session/);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/login?username={{username}}&password=TestPass123!",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ],
+              "query": [
+                {
+                  "key": "username",
+                  "value": "{{username}}"
+                },
+                {
+                  "key": "password",
+                  "value": "TestPass123!"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USER-06 - Logout User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================",
+                  "// REQUIRED ASSERTIONS",
+                  "// ==========================================",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response time is below maxResponseMs\", function () {",
+                  "    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));",
+                  "    pm.expect(maxTime).to.be.above(0);",
+                  "    pm.expect(pm.response.responseTime).to.be.below(maxTime);",
+                  "});",
+                  "",
+                  "// ==========================================",
+                  "// ADDITIONAL ASSERTIONS",
+                  "// ==========================================",
+                  "pm.test(\"Logout response is not empty\", function () {",
+                  "    pm.expect(pm.response.text().trim()).to.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USER-07 - Delete User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================",
+                  "// REQUIRED ASSERTIONS",
+                  "// ==========================================",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response time is below maxResponseMs\", function () {",
+                  "    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));",
+                  "    pm.expect(maxTime).to.be.above(0);",
+                  "    pm.expect(pm.response.responseTime).to.be.below(maxTime);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/{{username}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "{{username}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USER-08 - Verify Deleted User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================",
+                  "// REQUIRED ASSERTIONS",
+                  "// ==========================================",
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test(\"Response time is below maxResponseMs\", function () {",
+                  "    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));",
+                  "    pm.expect(maxTime).to.be.above(0);",
+                  "    pm.expect(pm.response.responseTime).to.be.below(maxTime);",
+                  "});",
+                  "",
+                  "// ==========================================",
+                  "// ADDITIONAL ASSERTIONS",
+                  "// ==========================================",
+                  "pm.test(\"Not-found response body is not empty\", function () {",
+                  "    pm.expect(pm.response.text().trim()).to.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/{{username}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "{{username}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Negative",
+      "item": [
+        {
+          "name": "NEG-01 – Get Non-Existing Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API returns 404 because the requested pet does not exist.\r\npm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\n// Verify that the response time is below the configured limit.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API returns a non-empty response body.\r\npm.test(\"Response body is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.equal(\"\");\r\n});\r\n\r\n// Verify that the API returns the expected not-found message.\r\npm.test(\"Response contains the expected not-found message\", function () {\r\n    pm.expect(pm.response.text().trim()).to.equal(\"Pet not found\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{petId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{petId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "NEG-02 - Invalid Pet ID Format",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API returns 400 for an invalid Pet ID format.\r\npm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\n// Verify that the response time is below the configured limit.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API returns a non-empty response body.\r\npm.test(\"Response body is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.equal(\"\");\r\n});\r\n\r\n// Verify that the API returns an error response instead of a successful response.\r\npm.test(\"API does not accept the invalid Pet ID\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "abc"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "NEG-03 - Create Pet Without Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// The API should reject a Pet request\r\n// when the required \"name\" field is missing.\r\npm.test(\"API rejects Pet creation without required name\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API does not return a successful response.\r\npm.test(\"Pet creation was not successful\", function () {\r\n    pm.expect(pm.response.code).to.be.within(400, 499);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": 2026110202,\r\n    \"photoUrls\": [\r\n        \"https://example.com/test-pet.jpg\"\r\n    ],\r\n    \"status\": \"available\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "NEG-04 - Malformed JSON Body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API rejects malformed JSON.\r\npm.test(\"API rejects malformed JSON\", function () {\r\n    pm.expect(pm.response.code).to.equal(400);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API returns an error response,\r\n// not a successful response.\r\npm.test(\"Pet creation was not successful\", function () {\r\n    pm.expect(pm.response.code).to.be.within(400, 499);\r\n});\r\n\r\n// Verify that the API provides an error response body.\r\npm.test(\"Error response body is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.be.empty;\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 2026110203,\r\n  \"name\": \"Broken JSON\",\r\n  \"photoUrls\": [\r\n    \"https://example.com/broken.jpg\",\r\n  ],\r\n  \"status\": \"available\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "NEG-05 – Create Pet Without PhotoUrls",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// The API should reject the request because\r\n// photoUrls is a required field.\r\npm.test(\"API rejects Pet creation without required photoUrls\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that Pet creation was not successful.\r\npm.test(\"Pet creation was not successful\", function () {\r\n    pm.expect(pm.response.code).to.be.within(400, 499);\r\n});\r\n\r\n// Verify that the API returns an error response body.\r\npm.test(\"Error response body is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.be.empty;\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 2026110204,\r\n  \"name\": \"Pet Without Photos\",\r\n  \"status\": \"available\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "E2E",
+      "item": [
+        {
+          "name": "E2E-01 - Create Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify successful Pet creation.\r\npm.test(\"Pet is created successfully\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// Verify created Pet details.\r\npm.test(\"Pet details match the request\", function () {\r\n    const response = pm.response.json();\r\n\r\n    pm.expect(response.id).to.eql(2026110205);\r\n    pm.expect(response.name).to.eql(\"E2E Pet Hanaa\");\r\n    pm.expect(response.status).to.eql(\"available\");\r\n    pm.expect(response.photoUrls).to.include(\r\n        \"https://example.com/e2e-pet.jpg\"\r\n    );\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the returned ID is numeric.\r\npm.test(\"Pet ID is a number\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.id).to.be.a(\"number\");\r\n});\r\n\r\n// Save Pet ID for the next E2E requests.\r\nconst response = pm.response.json();\r\n\r\npm.environment.set(\"petId\", response.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 2026110205,\r\n  \"name\": \"E2E Pet Hanaa\",\r\n  \"photoUrls\": [\r\n    \"https://example.com/e2e-pet.jpg\"\r\n  ],\r\n  \"status\": \"available\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "E2E-02 - Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify successful Order creation.\r\npm.test(\"Order is created successfully\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// Verify that the Order references the correct Pet.\r\npm.test(\"Order is linked to the correct Pet\", function () {\r\n    const response = pm.response.json();\r\n    const expectedPetId = Number(pm.environment.get(\"petId\"));\r\n\r\n    pm.expect(response.petId).to.eql(expectedPetId);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify Order details match the request.\r\npm.test(\"Order details match the request\", function () {\r\n    const response = pm.response.json();\r\n\r\n    pm.expect(response.id).to.eql(2026110206);\r\n    pm.expect(response.quantity).to.eql(1);\r\n    pm.expect(response.status).to.eql(\"placed\");\r\n    pm.expect(response.complete).to.eql(true);\r\n});\r\n\r\n// Verify that the returned Order ID is numeric.\r\npm.test(\"Order ID is a number\", function () {\r\n    const response = pm.response.json();\r\n\r\n    pm.expect(response.id).to.be.a(\"number\");\r\n});\r\n\r\n// Save Order ID for the next E2E requests.\r\nconst response = pm.response.json();\r\n\r\nif (pm.response.code === 200 && response.id !== undefined) {\r\n    pm.environment.set(\"orderId\", response.id);\r\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 2026110206,\r\n  \"petId\": {{petId}},\r\n  \"quantity\": 1,\r\n  \"shipDate\": \"2026-11-02T12:00:00.000Z\",\r\n  \"status\": \"placed\",\r\n  \"complete\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/store/order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "E2E-03 - Get Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify successful Order retrieval.\r\npm.test(\"Order is retrieved successfully\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// Verify that the retrieved Order belongs to the created Pet.\r\npm.test(\"Order references the correct Pet\", function () {\r\n    const response = pm.response.json();\r\n    const expectedPetId = Number(pm.environment.get(\"petId\"));\r\n\r\n    pm.expect(response.petId).to.eql(expectedPetId);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify Order ID matches the saved ID.\r\npm.test(\"Order ID matches the saved orderId\", function () {\r\n    const response = pm.response.json();\r\n    const expectedOrderId = Number(pm.environment.get(\"orderId\"));\r\n\r\n    pm.expect(response.id).to.eql(expectedOrderId);\r\n});\r\n\r\n// Verify Order details.\r\npm.test(\"Order details are correct\", function () {\r\n    const response = pm.response.json();\r\n\r\n    pm.expect(response.quantity).to.eql(1);\r\n    pm.expect(response.status).to.eql(\"placed\");\r\n    pm.expect(response.complete).to.eql(true);\r\n});\r\n\r\n// Verify response contains the expected data types.\r\npm.test(\"Order fields have correct data types\", function () {\r\n    const response = pm.response.json();\r\n\r\n    pm.expect(response.id).to.be.a(\"number\");\r\n    pm.expect(response.petId).to.be.a(\"number\");\r\n    pm.expect(response.quantity).to.be.a(\"number\");\r\n    pm.expect(response.status).to.be.a(\"string\");\r\n    pm.expect(response.complete).to.be.a(\"boolean\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{orderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "E2E-04 - Delete Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify successful Order deletion.\r\npm.test(\"Order is deleted successfully\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{orderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "E2E-05 - Verify Deleted Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the deleted Order cannot be retrieved.\r\npm.test(\"Deleted Order returns 404 Not Found\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the API returns an error response body.\r\npm.test(\"Not Found response body is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.be.empty;\r\n});\r\n\r\n// Verify that the response indicates the Order was not found.\r\npm.test(\"Response indicates Order was not found\", function () {\r\n    pm.expect(pm.response.text().toLowerCase()).to.include(\"order\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{orderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "E2E-06 - Delete Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify successful Pet deletion.\r\npm.test(\"Pet is deleted successfully\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify deletion confirmation is not empty.\r\npm.test(\"Deletion response is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.be.empty;\r\n});\r\n\r\n// Verify response confirms Pet deletion.\r\npm.test(\"Response confirms Pet deletion\", function () {\r\n    pm.expect(pm.response.text().toLowerCase()).to.include(\"pet deleted\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{petId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{petId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "E2E-07 - Verify Deleted Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify that the deleted Pet cannot be retrieved.\r\npm.test(\"Deleted Pet returns 404 Not Found\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\n// Verify response time.\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    const maxTime = Number(pm.environment.get(\"maxResponseMs\"));\r\n    pm.expect(pm.response.responseTime).to.be.below(maxTime);\r\n});\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\n// Verify the response contains an error message.\r\npm.test(\"Not Found response body is not empty\", function () {\r\n    pm.expect(pm.response.text().trim()).to.not.be.empty;\r\n});\r\n\r\n// Verify the API returns the expected not-found message.\r\npm.test(\"Response confirms Pet was not found\", function () {\r\n    pm.expect(pm.response.text().toLowerCase()).to.include(\"pet not found\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{petId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{petId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Data Driven",
+      "item": [
+        {
+          "name": "DD-01 - Create Pet Data Driven",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\n// ==========================================\r\n// DATA DRIVEN - PRE REQUEST\r\n// ==========================================\r\n\r\n// Read data from the current iteration\r\nconst caseId = pm.iterationData.get(\"caseId\");\r\nconst name = pm.iterationData.get(\"name\");\r\nconst status = pm.iterationData.get(\"status\");\r\n\r\n// Generate a unique numeric Pet ID\r\nconst petId = Date.now() + pm.info.iteration;\r\n\r\npm.variables.set(\"petId\", petId);\r\n\r\n// Build dynamic request body\r\nconst pet = {\r\n    id: petId,\r\n    photoUrls: [\"https://example.com/test-pet.jpg\"],\r\n    status: status\r\n};\r\n\r\n// DD-05 tests missing name\r\nif (caseId !== \"DD-05\") {\r\n    pet.name = name;\r\n}\r\n\r\n// Save dynamic request body\r\npm.variables.set(\"requestBody\", JSON.stringify(pet));\r\n\r\n// Log test data\r\nconsole.log(\"Test Case:\", caseId);\r\nconsole.log(\"Pet ID:\", petId);\r\nconsole.log(\"Request Body:\", pet);\r\n"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\n// ==========================================\r\n// REQUIRED ASSERTIONS\r\n// ==========================================\r\n\r\nconst expectedStatus = Number(\r\n    pm.iterationData.get(\"expectedStatus\")\r\n);\r\n\r\npm.test(\"Status code matches expected result\", function () {\r\n    pm.expect(pm.response.code).to.eql(expectedStatus);\r\n});\r\n\r\npm.test(\"Response time is below maxResponseMs\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(\r\n        Number(pm.environment.get(\"maxResponseMs\"))\r\n    );\r\n});\r\n\r\npm.test(\"Response is valid JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\n\r\n// ==========================================\r\n// ADDITIONAL ASSERTIONS\r\n// ==========================================\r\n\r\nif (pm.response.code === 200) {\r\n\r\n    const result = pm.response.json();\r\n\r\n    pm.test(\"Created Pet ID matches request ID\", function () {\r\n        pm.expect(result.id).to.eql(\r\n            Number(pm.variables.get(\"petId\"))\r\n        );\r\n    });\r\n\r\n    pm.test(\"Pet status matches input data\", function () {\r\n        pm.expect(result.status).to.eql(\r\n            pm.iterationData.get(\"status\")\r\n        );\r\n    });\r\n\r\n    if (pm.iterationData.get(\"caseId\") !== \"DD-05\") {\r\n        pm.test(\"Pet name matches input data\", function () {\r\n            pm.expect(result.name).to.eql(\r\n                pm.iterationData.get(\"name\")\r\n            );\r\n        });\r\n    }\r\n\r\n    // Save successfully created Pet IDs for cleanup\r\n    let createdPetIds = pm.environment.get(\"ddPetIds\");\r\n\r\n    createdPetIds = createdPetIds\r\n        ? JSON.parse(createdPetIds)\r\n        : [];\r\n\r\n    const petId = Number(pm.variables.get(\"petId\"));\r\n\r\n    if (!createdPetIds.includes(petId)) {\r\n        createdPetIds.push(petId);\r\n    }\r\n\r\n    pm.environment.set(\r\n        \"ddPetIds\",\r\n        JSON.stringify(createdPetIds)\r\n    );\r\n}\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{{requestBody}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Advanced - Data Integrity",
+      "item": [
+        {
+          "name": "DI-01 - Create Pet for Data Integrity",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const petId = Date.now();",
+                  "pm.environment.set(\"integrityPetId\", petId);",
+                  "pm.variables.set(\"integrityPetId\", petId);",
+                  "pm.variables.set(\"integrityPetBody\", JSON.stringify({id:petId,name:\"Integrity Test Pet\",photoUrls:[\"https://example.com/integrity-pet.jpg\"],status:\"available\"}));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\",()=>pm.response.to.have.status(200));",
+                  "pm.test(\"Response is valid JSON\",()=>pm.response.to.be.json);",
+                  "const d=pm.response.json();",
+                  "pm.test(\"Pet ID matches\",()=>pm.expect(d.id).to.eql(Number(pm.environment.get(\"integrityPetId\"))));",
+                  "pm.test(\"Pet name matches\",()=>pm.expect(d.name).to.eql(\"Integrity Test Pet\"));",
+                  "pm.test(\"Pet status is available\",()=>pm.expect(d.status).to.eql(\"available\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{{integrityPetBody}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DI-02 - Create Order Linked to Pet",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const orderId=Date.now()+1;",
+                  "pm.environment.set(\"integrityOrderId\",orderId);",
+                  "pm.variables.set(\"integrityOrderBody\",JSON.stringify({id:orderId,petId:Number(pm.environment.get(\"integrityPetId\")),quantity:2,shipDate:new Date().toISOString(),status:\"placed\",complete:true}));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\",()=>pm.response.to.have.status(200));",
+                  "pm.test(\"Response is valid JSON\",()=>pm.response.to.be.json);",
+                  "const d=pm.response.json();",
+                  "pm.test(\"Order ID matches\",()=>pm.expect(d.id).to.eql(Number(pm.environment.get(\"integrityOrderId\"))));",
+                  "pm.test(\"Order references created Pet\",()=>pm.expect(d.petId).to.eql(Number(pm.environment.get(\"integrityPetId\"))));",
+                  "pm.test(\"Quantity is 2\",()=>pm.expect(d.quantity).to.eql(2));",
+                  "pm.test(\"Status is placed\",()=>pm.expect(d.status).to.eql(\"placed\"));",
+                  "pm.test(\"Complete is true\",()=>pm.expect(d.complete).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{{integrityOrderBody}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/store/order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DI-03 - Verify Order Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\",()=>pm.response.to.have.status(200));",
+                  "pm.test(\"Response is valid JSON\",()=>pm.response.to.be.json);",
+                  "const d=pm.response.json();",
+                  "pm.test(\"Order ID is correct\",()=>pm.expect(d.id).to.eql(Number(pm.environment.get(\"integrityOrderId\"))));",
+                  "pm.test(\"Pet relationship is correct\",()=>pm.expect(d.petId).to.eql(Number(pm.environment.get(\"integrityPetId\"))));",
+                  "pm.test(\"Quantity remains 2\",()=>pm.expect(d.quantity).to.eql(2));",
+                  "pm.test(\"Status remains placed\",()=>pm.expect(d.status).to.eql(\"placed\"));",
+                  "pm.test(\"Complete remains true\",()=>pm.expect(d.complete).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{integrityOrderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{integrityOrderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DI-04 - Update Pet Data",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const petId=Number(pm.environment.get(\"integrityPetId\"));",
+                  "pm.variables.set(\"integrityUpdatedPetBody\",JSON.stringify({id:petId,name:\"Integrity Test Pet Updated\",photoUrls:[\"https://example.com/integrity-pet-updated.jpg\"],status:\"pending\"}));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\",()=>pm.response.to.have.status(200));",
+                  "pm.test(\"Response is valid JSON\",()=>pm.response.to.be.json);",
+                  "const d=pm.response.json();",
+                  "pm.test(\"Pet ID remains unchanged\",()=>pm.expect(d.id).to.eql(Number(pm.environment.get(\"integrityPetId\"))));",
+                  "pm.test(\"Pet name is updated\",()=>pm.expect(d.name).to.eql(\"Integrity Test Pet Updated\"));",
+                  "pm.test(\"Pet status is pending\",()=>pm.expect(d.status).to.eql(\"pending\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{{integrityUpdatedPetBody}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DI-05 - Verify Order Relationship After Pet Update",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\",()=>pm.response.to.have.status(200));",
+                  "pm.test(\"Response is valid JSON\",()=>pm.response.to.be.json);",
+                  "const d=pm.response.json();",
+                  "pm.test(\"Order still references the same Pet ID\",()=>pm.expect(d.petId).to.eql(Number(pm.environment.get(\"integrityPetId\"))));",
+                  "pm.test(\"Order ID is unchanged\",()=>pm.expect(d.id).to.eql(Number(pm.environment.get(\"integrityOrderId\"))));",
+                  "pm.test(\"Order quantity is unchanged\",()=>pm.expect(d.quantity).to.eql(2));",
+                  "pm.test(\"Order status is unchanged\",()=>pm.expect(d.status).to.eql(\"placed\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{integrityOrderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{integrityOrderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DI-06 - Delete Integrity Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\",()=>pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{integrityOrderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{integrityOrderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DI-07 - Verify Deleted Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\",()=>pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/store/order/{{integrityOrderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "{{integrityOrderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DI-08 - Delete Integrity Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\",()=>pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{integrityPetId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{integrityPetId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DI-09 - Verify Deleted Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\",()=>pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pet/{{integrityPetId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "{{integrityPetId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Task 10 - Advanced Data Integrity scenarios for Pet and Store resources."
+    }
+  ]
+}
