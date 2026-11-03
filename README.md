@@ -1,4 +1,4 @@
-# Petstore API Testing -- Training Assignment
+# Petstore API Testing 
 
 ## Overview
 
